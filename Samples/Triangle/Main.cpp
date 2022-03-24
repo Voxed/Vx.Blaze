@@ -112,16 +112,24 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
+    glfwSetWindowUserPointer(window, &cam);
+
+
+    glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int width, int height) {
+        glViewport(0, 0, width, height);
+        std::shared_ptr<Vx::Blaze::Camera> cam = *(std::shared_ptr<Vx::Blaze::Camera>*)glfwGetWindowUserPointer(window);
+        cam->Projection = glm::perspective(45.0f, ((float)width) / ((float)height), 0.01f, 150.0f);
+    });
+
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         //glEnable(GL_CULL_FACE);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         long millis = (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - startTime)).count();
-        tr->Transform = glm::rotate(glm::mat4(1.f), ((float)millis)/1000.f, {1.f, 0.f, 0.f});
-        /*cam->View = glm::lookAt<float, glm::defaultp>(
-                {cosf(((float)millis)/1000.f)*2.0f, 0.0f, sinf(((float)millis)/1000.f)*2.0f},
+        cam->View = glm::lookAt<float, glm::defaultp>(
+                {cosf(((float)millis)/1000.f)*3.0f, 0.0f, 5.0f},
                 {0.f, 0.f, 0.f},
-                {0.0f, 1.0f, 0.0f});*/
+                {0.0f, 1.0f, 0.0f});
         root->Visit(std::make_shared<Vx::Blaze::OGLVisitor>(), root);
         glfwSwapBuffers(window);
     }

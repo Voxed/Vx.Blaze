@@ -15,6 +15,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 namespace Vx::Blaze::GLTF {
 
@@ -45,15 +46,22 @@ namespace Vx::Blaze::GLTF {
 
     std::shared_ptr<Node> GLTFLoader::loadNode(tinygltf::Node node, tinygltf::Model context) {
         std::shared_ptr<Group> current = std::make_shared<Group>();
-        std::shared_ptr<Group> root = current;
+        std::shared_ptr<TransformNode> root = std::make_shared<TransformNode>();
+        root->Content = current;
 
-        if (!node.translation.empty()) {
-            auto transform = std::make_shared<TransformNode>();
-            current = std::make_shared<Group>();
-            transform->Transform = glm::translate(glm::mat4(1.0f), glm::vec3(node.translation[0], node.translation[1],
-                                                                             node.translation[2]));
-            transform->Content = current;
-            root->Children.push_back(transform);
+        if(!node.matrix.empty()) {
+            root->Transform = glm::make_mat4(node.matrix.data());
+        }else{
+            root->Transform = glm::mat4(1.0);
+            if(!node.translation.empty()) {
+                root->Transform = root->Transform * glm::translate(glm::mat4(1.0), glm::vec3(node.translation[0], node.translation[1], node.translation[2]));
+            }
+            if(!node.rotation.empty()) {
+                root->Transform = root->Transform*glm::toMat4(glm::quat(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]));
+            }
+            if(!node.scale.empty()) {
+                root->Transform = root->Transform * glm::scale(glm::mat4(1.0), glm::vec3(node.scale[0], node.scale[1], node.scale[2]));
+            }
         }
 
         for (const auto &item : node.children) {

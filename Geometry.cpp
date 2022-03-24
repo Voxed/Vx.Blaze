@@ -19,6 +19,7 @@ namespace Vx::Blaze {
             vertices(vertices),
             indices(indices) {
         this->indexCount = indices.size();
+        this->indexOffset = 0;
 
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
