@@ -13,6 +13,7 @@
 #include "ShaderManager.h"
 #include "TransformNode.h"
 #include "Samples/Triangle/ThirdParty/OBJ_Loader.h"
+#include "Vx.Blaze.GLTF/GLTFLoader.h"
 
 #include <GLFW/glfw3.h>
 #include <GL/glew.h>
@@ -33,6 +34,8 @@ int main() {
 
     std::vector<glm::vec3> vertices = {};
     std::vector<glm::vec3> normals = {};
+    std::vector<glm::vec3> vertices2 = {};
+    std::vector<glm::vec3> normals2 = {};
 
     objl::Loader Loader;
     bool loadout = Loader.LoadFile("assets/suzanne.obj");
@@ -41,10 +44,17 @@ int main() {
         vertices.emplace_back(item.Position.X, item.Position.Y, item.Position.Z);
         normals.emplace_back(item.Normal.X, item.Normal.Y, item.Normal.Z);
     }
-
-
-
     std::vector<unsigned int> indices = curMesh.Indices;
+
+    loadout = Loader.LoadFile("assets/teapot.obj");
+    curMesh = Loader.LoadedMeshes[0];
+    for (const auto &item : curMesh.Vertices) {
+        vertices2.emplace_back(item.Position.X, item.Position.Y, item.Position.Z);
+        normals2.emplace_back(item.Normal.X, item.Normal.Y, item.Normal.Z);
+    }
+
+
+    std::vector<unsigned int> indices2 = curMesh.Indices;
 
     std::shared_ptr<Vx::Blaze::ResourceManager> rm = std::make_shared<Vx::Blaze::ResourceManager>();
 
@@ -52,6 +62,8 @@ int main() {
     std::shared_ptr<Vx::Blaze::Camera> cam = std::make_shared<Vx::Blaze::Camera>();
     std::shared_ptr<Vx::Blaze::Group> group = std::make_shared<Vx::Blaze::Group>();
     std::shared_ptr<Vx::Blaze::Geometry> geo = std::make_shared<Vx::Blaze::Geometry>(vertices, normals, indices);
+    std::shared_ptr<Vx::Blaze::Geometry> geo2 = std::make_shared<Vx::Blaze::Geometry>(vertices2, normals2, indices2);
+
     std::shared_ptr<Vx::Blaze::TransformNode> tr = std::make_shared<Vx::Blaze::TransformNode>();
     std::shared_ptr<Vx::Blaze::TransformNode> tr2 = std::make_shared<Vx::Blaze::TransformNode>();
     std::shared_ptr<Vx::Blaze::TransformNode> tr3 = std::make_shared<Vx::Blaze::TransformNode>();
@@ -61,7 +73,7 @@ int main() {
     std::shared_ptr<Vx::Blaze::TransformNode> s3 = std::make_shared<Vx::Blaze::TransformNode>();
 
     s1->Transform = glm::scale(glm::mat4(1.0f), {0.5f, 0.5f, 0.5f});
-    s2->Transform = s1->Transform;
+    s2->Transform = glm::scale(glm::mat4(1.0f), {0.2f, 0.2f, 0.2f});
     s3->Transform = s1->Transform;
 
     s1->Content = geo;
@@ -73,23 +85,28 @@ int main() {
     cam->Content = tr;
     tr->Content = group;
     tr->Transform = glm::rotate(glm::mat4(1.f), 1.0f, {1.f, 0.f, 0.f});
-    group->Children.push_back(s1);
-    s2->Content = tr2;
-    tr2->Content = geo;
-    tr2->Transform = glm::translate(glm::mat4(1.0f), {1.f, 0.f, 0.f});
-    group->Children.push_back(s2);
+    //group->Children.push_back(s1);
+    tr2->Content = s2;
+    s2->Content = geo2;
+    tr2->Transform = glm::translate(glm::mat4(1.0f), {1.f, -0.5f, 0.f});
+    //group->Children.push_back(tr2);
 
     s3->Content = tr3;
     tr3->Content = geo;
-    tr3->Transform = glm::translate(glm::mat4(1.0f), {-1.f, 0.f, 0.f});
-    group->Children.push_back(s3);
+    tr3->Transform = glm::translate(glm::mat4(1.0f), {-2.f, 0.f, 0.f})*glm::rotate(glm::mat4(1.0f), 1.0f, {0.0f, 1.0f, 0.0f});
+    //group->Children.push_back(s3);
 
     cam->Projection = glm::perspective(45.0f, 640.f / 480.f, 0.01f, 150.0f);
     cam->View = glm::lookAt<float, glm::defaultp>(
-            {0.0f, 0.0f, 2.0f},
+            {0.0f, 0.0f, 5.0f},
             {0.f, 0.f, 0.f},
             {0.0f, 1.0f, 0.0f});
     //cam->Projection = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.0f, 0.0f));
+
+    Vx::Blaze::GLTF::GLTFLoader gltfLoader;
+
+    auto node = gltfLoader.Load("assets/test.gltf");
+    group->Children.push_back(node);
 
     auto startTime = std::chrono::system_clock::now();
 

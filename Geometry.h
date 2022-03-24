@@ -18,8 +18,11 @@ namespace Vx::Blaze {
     class ShaderNode;
 
     class Geometry : public Node {
+
         std::vector<glm::vec3> vertices;
         std::vector<unsigned int> indices;
+        int indexCount;
+        int indexOffset;
 
         GLuint vao;
         GLuint ibo;
@@ -28,6 +31,8 @@ namespace Vx::Blaze {
 
     public:
         Geometry(std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, std::vector<unsigned int> indices);
+        Geometry(int positionOffset, int positionLength, int normalOffset, int normalLength,
+                 std::vector<unsigned char> data, int indexOffset, int indexCount);
 
         void Visit(std::shared_ptr<NodeVisitor> visitor, std::shared_ptr<Node> self) override;
 

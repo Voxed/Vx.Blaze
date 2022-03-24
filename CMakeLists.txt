@@ -11,4 +11,5 @@ add_library(VxBlaze Node.cpp Node.h NodeVisitor.h Geometry.cpp Geometry.h OGLVis
 target_include_directories(VxBlaze PUBLIC ${PROJECT_SOURCE_DIR})
 target_link_libraries(VxBlaze PUBLIC OpenGL::OpenGL GLEW::GLEW glm)
 
+add_subdirectory(Vx.Blaze.GLTF)
 add_subdirectory(Samples)

@@ -33,7 +33,7 @@ namespace Vx::Blaze {
         auto visitor = std::make_shared<OGLVisitor>();
         visitor->camera = camera;
         visitor->shader = shader;
-        visitor->transform = transform->Transform*this->transform;
+        visitor->transform = this->transform*transform->Transform;
         return visitor;
     }
 

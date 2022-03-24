@@ -1,5 +1,5 @@
 add_executable(Triangle Main.cpp ThirdParty/OBJ_Loader.h)
-target_link_libraries(Triangle PRIVATE VxBlaze)
+target_link_libraries(Triangle PRIVATE VxBlaze VxBlazeGLTF)
 
 find_package(glfw3 REQUIRED)
 
