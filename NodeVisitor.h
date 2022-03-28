@@ -14,6 +14,8 @@ namespace Vx::Blaze {
     class Group;
     class ShaderNode;
     class TransformNode;
+    class BackgroundNode;
+    class EnvironmentNode;
 
     class NodeVisitor {
     public:
@@ -22,6 +24,8 @@ namespace Vx::Blaze {
         virtual void Accept(std::shared_ptr<Group> group, std::shared_ptr<NodeVisitor> self) = 0;
         virtual void Accept(std::shared_ptr<ShaderNode> shader, std::shared_ptr<NodeVisitor> self) = 0;
         virtual void Accept(std::shared_ptr<TransformNode> shader, std::shared_ptr<NodeVisitor> self) = 0;
+        virtual void Accept(std::shared_ptr<BackgroundNode> env, std::shared_ptr<NodeVisitor> self) = 0;
+        virtual void Accept(std::shared_ptr<EnvironmentNode> env, std::shared_ptr<NodeVisitor> self) = 0;
     };
 
 }

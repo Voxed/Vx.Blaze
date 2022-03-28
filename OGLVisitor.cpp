@@ -10,6 +10,8 @@
 #include "ShaderNode.h"
 #include "TransformNode.h"
 #include <glm/ext.hpp>
+#include "BackgroundNode.h"
+#include "EnvironmentNode.h"
 
 namespace Vx::Blaze {
 
@@ -24,8 +26,9 @@ namespace Vx::Blaze {
     std::shared_ptr<OGLVisitor> OGLVisitor::applyShader(std::shared_ptr<ShaderNode> shader) {
         auto visitor = std::make_shared<OGLVisitor>();
         visitor->camera = camera;
-        visitor->shader = shader;
+        visitor->shader = shader->Shader;
         visitor->transform = transform;
+        visitor->environment = environment;
         return visitor;
     }
 
@@ -33,12 +36,22 @@ namespace Vx::Blaze {
         auto visitor = std::make_shared<OGLVisitor>();
         visitor->camera = camera;
         visitor->shader = shader;
-        visitor->transform = this->transform*transform->Transform;
+        visitor->environment = environment;
+        visitor->transform = this->transform * transform->Transform;
+        return visitor;
+    }
+
+    std::shared_ptr<OGLVisitor> OGLVisitor::applyEnvironment(std::shared_ptr<EnvironmentNode> env) {
+        auto visitor = std::make_shared<OGLVisitor>();
+        visitor->camera = camera;
+        visitor->shader = shader;
+        visitor->transform = transform;
+        visitor->environment = env;
         return visitor;
     }
 
     void OGLVisitor::Accept(std::shared_ptr<Geometry> geometry, std::shared_ptr<NodeVisitor> self) {
-        geometry->Render(camera, shader, transform);
+        geometry->Render(camera, shader, transform, environment);
     }
 
     void OGLVisitor::Accept(std::shared_ptr<Camera> camera, std::shared_ptr<NodeVisitor> self) {
@@ -46,7 +59,7 @@ namespace Vx::Blaze {
     }
 
     void OGLVisitor::Accept(std::shared_ptr<Group> group, std::shared_ptr<NodeVisitor> self) {
-        for (const auto &item : group->Children) {
+        for (const auto &item: group->Children) {
             item->Visit(self, item);
         }
     }
@@ -57,6 +70,15 @@ namespace Vx::Blaze {
 
     void OGLVisitor::Accept(std::shared_ptr<TransformNode> transform, std::shared_ptr<NodeVisitor> self) {
         transform->Content->Visit(applyTransform(transform), transform->Content);
+    }
+
+    void OGLVisitor::Accept(std::shared_ptr<BackgroundNode> env, std::shared_ptr<NodeVisitor> self) {
+        env->Render(camera);
+        env->Content->Visit(self, env->Content);
+    }
+
+    void OGLVisitor::Accept(std::shared_ptr<EnvironmentNode> env, std::shared_ptr<NodeVisitor> self) {
+        env->Content->Visit(applyEnvironment(env), env->Content);
     }
 
 }

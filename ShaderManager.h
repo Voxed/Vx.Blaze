@@ -10,21 +10,22 @@
 #include <map>
 #include <GL/glew.h>
 #include <memory>
+#include "Shader.h"
 
 namespace Vx::Blaze {
 
     struct ShaderDeleter {
-        void operator()(GLuint * p) {
-            glDeleteProgram(*p);
+        void operator()(Shader * p) {
+            p->Delete();
             delete p;
         }
     };
 
     class ShaderManager {
-        std::map<std::string, std::weak_ptr<GLuint>> programs;
+        std::map<std::string, std::weak_ptr<Shader>> programs;
 
     public:
-        std::shared_ptr<GLuint> Get(std::string name);
+        std::shared_ptr<Shader> Get(std::string name);
     };
 
 }

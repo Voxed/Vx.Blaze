@@ -5,12 +5,13 @@
 #include <fstream>
 #include <vector>
 #include "ShaderManager.h"
+#include "Shader.h"
 
 namespace Vx::Blaze {
 
-    std::shared_ptr<GLuint> ShaderManager::Get(std::string path) {
+    std::shared_ptr<Shader> ShaderManager::Get(std::string path) {
         if(programs.contains(path)) {
-            if(std::shared_ptr<GLuint> shared = programs[path].lock())
+            if(std::shared_ptr<Shader> shared = programs[path].lock())
                 return shared;
         }
 
@@ -80,7 +81,7 @@ namespace Vx::Blaze {
 
         }
 
-        auto shared = std::shared_ptr<GLuint>(new GLuint(program), ShaderDeleter());
+        auto shared = std::shared_ptr<Shader>(new Shader(program), ShaderDeleter());
         programs[path] = shared;
         return shared;
     }
